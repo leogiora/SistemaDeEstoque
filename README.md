@@ -42,7 +42,7 @@ SistemaDeEstoque/
 ├── package.json
 
 ⚙️ Como rodar o projeto localmente
-git clone https://github.com/seu-usuario/seu-repositorio.git
+git clone https://github.com/leogiora/Sistema-de-Estoque.git
 
 cd SistemaDeEstoque
 npm install
