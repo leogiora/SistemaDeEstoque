@@ -66,6 +66,54 @@ app.get("/produtos", (req, res) => {
   });
 });
 
+// Rota para editar um produto existente
+app.put("/produtos/:id", (req, res) => {
+  const { id } = req.params;
+  const { nome, quantidade, preco } = req.body;
+
+  if (!nome || quantidade == null || preco == null) {
+    return res.status(400).json({ error: "Dados incompletos" });
+  }
+
+  const query = `
+    UPDATE produtos
+    SET nome = ?, quantidade = ?, preco = ?
+    WHERE id = ?
+  `;
+  const params = [nome, quantidade, preco, id];
+
+  db.run(query, params, function (err) {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ error: "Erro ao atualizar produto" });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    res.json({ message: "Produto atualizado com sucesso" });
+  });
+});
+
+// Rota para deletar um produto
+app.delete("/produtos/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.run("DELETE FROM produtos WHERE id = ?", [id], function (err) {
+    if (err) {
+      console.error(err.message);
+      return res.status(500).json({ error: "Erro ao deletar produto" });
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    res.json({ message: "Produto deletado com sucesso" });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
