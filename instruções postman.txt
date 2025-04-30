@@ -52,3 +52,5 @@ URL: http://localhost:3000/produtos/1
 
 🔹 Esperado:
 { "message": "Produto deletado com sucesso" }.
+
+# Atualizando para forçar redeploy
