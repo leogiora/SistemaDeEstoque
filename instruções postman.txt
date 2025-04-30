@@ -1,0 +1,54 @@
+1. Testar se a API está no ar
+🔹 Requisição
+Método: GET
+
+URL: http://localhost:3000/ping = { "message": "API funcionando! 🚀" }
+
+2. Adicionar um produto
+🔹 Requisição
+Método: POST
+
+URL: http://localhost:3000/produtos
+
+Body: (JSON, em raw)
+
+{
+  "nome": "Notebook",
+  "quantidade": 5,
+  "preco": 3500.00
+}
+
+🔹 Esperado:
+
+{
+  "id": 1,
+  "nome": "Notebook",
+  "quantidade": 5,
+  "preco": 3500
+}
+
+
+3. Listar todos os produtos
+🔹 Requisição
+Método: GET
+
+URL: http://localhost:3000/produtos
+
+🔹 Esperado:
+[
+  {
+    "id": 1,
+    "nome": "Notebook",
+    "quantidade": 5,
+    "preco": 3500
+  }
+]
+
+5. Deletar um produto
+🔹 Requisição
+Método: DELETE
+
+URL: http://localhost:3000/produtos/1
+
+🔹 Esperado:
+{ "message": "Produto deletado com sucesso" }
