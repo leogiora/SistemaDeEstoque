@@ -2,7 +2,6 @@
 
 Sistema de controle de produtos simples e funcional com frontend moderno e backend em Node.js + SQLite.
 
-![Capa](./capa.png)
 
 ## 🚀 Funcionalidades
 
