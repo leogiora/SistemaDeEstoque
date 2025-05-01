@@ -10,7 +10,7 @@
 <body>
   <div class="container">
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar hidden" id="sidebar">
       <h2>Estoque</h2>
       <nav>
         <ul>
@@ -23,16 +23,23 @@
       </nav>
     </aside>
 
-    <!-- Main content -->
-    <button id="toggle-sidebar">☰</button>
+    <!-- Conteúdo principal -->
     <main class="main">
       <!-- Topbar -->
-        <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
-      </header>
-
-      <!-- Toggle Tema -->
-      <div class="topbar-actions">
-        <button id="toggle-tema">🌓 Alternar Tema</button>
+      <div class="topbar">
+        <div class="topbar-left">
+          <button id="toggle-sidebar">☰</button>
+          <h1>
+            <img src="logo.png" alt="Logo" class="logo" />
+            <span>Sistema de Estoque</span>
+          </h1>
+        </div>
+        <div class="topbar-right">
+          <button id="toggle-tema" class="btn-toggle">
+            <i class="fas fa-moon"></i>
+            <span>Alternar Tema</span>
+          </button>
+        </div>
       </div>
 
       <!-- Dashboard cards -->
@@ -66,7 +73,7 @@
         </form>
       </section>
 
-      <!-- Filtro de busca -->
+      <!-- Tabela de produtos -->
       <section class="tabela-produtos">
         <h2>Produtos Cadastrados</h2>
         <input type="text" id="filtro" placeholder="Buscar produto..." />
@@ -86,7 +93,9 @@
     </main>
   </div>
 
+  <!-- Toast de feedback -->
   <div id="toast" class="toast"></div>
+
   <script src="script.js"></script>
 </body>
 </html>

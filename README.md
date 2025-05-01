@@ -1,79 +1,63 @@
-# 🧾 Sistema de Estoque
+# 📦 Sistema de Estoque
 
-Sistema simples de gerenciamento de estoque com backend em Node.js + Express + SQLite e frontend em HTML, CSS e JavaScript puro.
+Sistema de controle de produtos simples e funcional com frontend moderno e backend em Node.js + SQLite.
+
+![Capa](./capa.png)
 
 ## 🚀 Funcionalidades
 
-- ✅ Listagem de produtos
-- ➕ Cadastro de novos produtos
-- 📝 Edição de produtos existentes
-- 🗑️ Remoção de produtos
-- 🔗 Integração entre frontend e backend via API REST
-- 🔒 Validação de dados no backend
+- Adicionar, editar e remover produtos
+- Contadores automáticos (estoque baixo, total)
+- Filtro de busca dinâmica na tabela
+- Toasts de sucesso/erro animados
+- Tema claro/escuro com salvamento
+- Sidebar responsiva recolhível
 
 ---
 
-## 🛠 Tecnologias utilizadas
+## 🧰 Tecnologias Utilizadas
 
-### Backend:
-- Node.js
-- Express
+- HTML + CSS + JS (Vanilla)
+- Node.js + Express
 - SQLite3
-- CORS
-
-### Frontend:
-- HTML5
-- CSS3
-- JavaScript puro (fetch API)
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📂 Estrutura do Projeto
 
-```bash
-SistemaDeEstoque/
-├── backend/
-│   └── app.js
-├── frontend/
+```
+Sistema-de-Estoque/
+├── Frontend/
 │   ├── index.html
+│   ├── logo.png
 │   ├── script.js
 │   └── style.css
-├── estoque.db  # será gerado automaticamente
+├── app.js               # Servidor Node.js + SQLite
+├── estoque.db           # Banco SQLite (gerado automaticamente)
 ├── package.json
+├── README.md
+└── instruções postman.txt
+```
 
-⚙️ Como rodar o projeto localmente
-git clone https://github.com/leogiora/Sistema-de-Estoque.git
+---
 
-cd SistemaDeEstoque
+## ⚙️ Como Rodar Localmente
+
+### 1. Instalar dependências
+```bash
 npm install
+```
 
-node backend/app.js
-(O backend ficará disponível em http://localhost:3000)
+### 2. Rodar o servidor
+```bash
+node app.js
+```
+Servidor: `http://localhost:3000`
 
-4. Abra o frontend
-Vá até a pasta frontend
+### 3. Abrir o sistema
+Abra o arquivo `Frontend/index.html` no navegador (clique duplo ou use extensão Live Server do VSCode).
 
-Clique com o botão direito no index.html e selecione "Abrir com Live Server"
+---
 
-Ou apenas abra o arquivo no navegador
 
-🧪 Testar com Postman (opcional)
-GET http://localhost:3000/ping → Testa se API está online
-
-GET /produtos → Lista produtos
-
-POST /produtos → Adiciona produto
-
-PUT /produtos/:id → Edita produto
-
-DELETE /produtos/:id → Deleta produto
-
-produto
-
-📌 Requisitos
-Node.js instalado
-
-Editor como Visual Studio Code
-
-Extensão Live Server (opcional)
-
+📌 **Obs:** Este projeto foi feito com fins de aprendizado e portfólio pessoal.
