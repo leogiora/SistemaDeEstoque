@@ -10,18 +10,20 @@ const toggleTema = document.getElementById("toggle-tema");
 const toggleSidebar = document.getElementById("toggle-sidebar");
 const sidebar = document.getElementById("sidebar");
 
+let editandoId = null;
+
 function showToast(msg, isErro = false) {
   toast.textContent = msg;
   toast.className = `toast show${isErro ? " error" : ""}`;
-  setTimeout(() => toast.className = "toast", 3000);
+  setTimeout(() => (toast.className = "toast"), 3000);
 }
 
 function carregarProdutos() {
   fetch(API_URL)
-    .then(res => res.json())
-    .then(produtos => {
+    .then((res) => res.json())
+    .then((produtos) => {
       tabela.innerHTML = "";
-      produtos.forEach(p => {
+      produtos.forEach((p) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${p.id}</td>
@@ -29,8 +31,12 @@ function carregarProdutos() {
           <td>${p.quantidade}</td>
           <td>R$ ${p.preco.toFixed(2)}</td>
           <td>
-            <button class="edit" onclick="editarProduto(${p.id}, '${p.nome}', ${p.quantidade}, ${p.preco})">Editar</button>
-            <button class="delete" onclick="deletarProduto(${p.id})">Excluir</button>
+            <button class="edit" onclick="editarProduto(${p.id}, '${p.nome}', ${
+          p.quantidade
+        }, ${p.preco})">Editar</button>
+            <button class="delete" onclick="deletarProduto(${
+              p.id
+            })">Excluir</button>
           </td>
         `;
         tabela.appendChild(tr);
@@ -42,12 +48,13 @@ function carregarProdutos() {
 
 function atualizarContadores(produtos) {
   document.getElementById("total-produtos").textContent = produtos.length;
-  const baixos = produtos.filter(p => p.quantidade <= 5).length;
+  const baixos = produtos.filter((p) => p.quantidade <= 5).length;
   document.getElementById("baixo-estoque").textContent = baixos;
 }
 
-form.addEventListener("submit", e => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
+
   const nome = document.getElementById("nome").value.trim();
   const quantidade = parseInt(document.getElementById("quantidade").value);
   const preco = parseFloat(document.getElementById("preco").value);
@@ -57,24 +64,47 @@ form.addEventListener("submit", e => {
     return;
   }
 
-  fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome, quantidade, preco })
-  })
-    .then(res => res.json())
-    .then(() => {
-      form.reset();
-      carregarProdutos();
-      showToast("Produto adicionado com sucesso!");
+  if (editandoId !== null) {
+    fetch(`${API_URL}/${editandoId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, quantidade, preco }),
     })
-    .catch(() => showToast("Erro ao adicionar produto", true));
+      .then((res) => res.json())
+      .then(() => {
+        showToast("Produto atualizado com sucesso!");
+        form.reset();
+        carregarProdutos();
+        editandoId = null;
+      })
+      .catch(() => showToast("Erro ao atualizar produto", true));
+  } else {
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, quantidade, preco }),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        showToast("Produto adicionado com sucesso!");
+        form.reset();
+        carregarProdutos();
+      })
+      .catch(() => showToast("Erro ao adicionar produto", true));
+  }
 });
+
+function editarProduto(id, nome, quantidade, preco) {
+  document.getElementById("nome").value = nome;
+  document.getElementById("quantidade").value = quantidade;
+  document.getElementById("preco").value = preco;
+  editandoId = id;
+}
 
 function deletarProduto(id) {
   if (!confirm("Tem certeza que deseja excluir este produto?")) return;
   fetch(`${API_URL}/${id}`, { method: "DELETE" })
-    .then(res => res.json())
+    .then((res) => res.json())
     .then(() => {
       carregarProdutos();
       showToast("Produto excluído com sucesso!");
@@ -82,44 +112,9 @@ function deletarProduto(id) {
     .catch(() => showToast("Erro ao excluir produto", true));
 }
 
-function editarProduto(id, nome, quantidade, preco) {
-  document.getElementById("nome").value = nome;
-  document.getElementById("quantidade").value = quantidade;
-  document.getElementById("preco").value = preco;
-
-  form.removeEventListener("submit", salvarNovo);
-  form.addEventListener("submit", salvarEdicao);
-
-  function salvarEdicao(e) {
-    e.preventDefault();
-    const nome = document.getElementById("nome").value.trim();
-    const quantidade = parseInt(document.getElementById("quantidade").value);
-    const preco = parseFloat(document.getElementById("preco").value);
-
-    fetch(`${API_URL}/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome, quantidade, preco })
-    })
-      .then(res => res.json())
-      .then(() => {
-        form.reset();
-        carregarProdutos();
-        showToast("Produto atualizado com sucesso!");
-        form.removeEventListener("submit", salvarEdicao);
-        form.addEventListener("submit", salvarNovo);
-      })
-      .catch(() => showToast("Erro ao atualizar produto", true));
-  }
-}
-
-function salvarNovo(e) {
-  e.preventDefault();
-}
-
 filtroInput.addEventListener("input", () => {
   const filtro = filtroInput.value.toLowerCase();
-  Array.from(tabela.children).forEach(row => {
+  Array.from(tabela.children).forEach((row) => {
     const nome = row.children[1].textContent.toLowerCase();
     row.style.display = nome.includes(filtro) ? "table-row" : "none";
   });
