@@ -1,6 +1,7 @@
 // script.js
 
-const API_URL = "http://localhost:3000/produtos"; // Altere para sua API se necessário
+const API_URL = "http://localhost:3000/produtos";
+const MOV_URL = "http://localhost:3000/movimentacoes";
 
 const tabela = document.getElementById("tabela-body");
 const form = document.getElementById("produto-form");
@@ -9,6 +10,13 @@ const filtroInput = document.getElementById("filtro");
 const toggleTema = document.getElementById("toggle-tema");
 const toggleSidebar = document.getElementById("toggle-sidebar");
 const sidebar = document.getElementById("sidebar");
+
+const modal = document.getElementById("modal-movimentacao");
+const inputQtd = document.getElementById("quantidade-mov");
+const btnConfirmar = document.getElementById("confirmar-mov");
+const btnCancelar = document.getElementById("cancelar-mov");
+let movProdutoId = null;
+let movTipo = null;
 
 let editandoId = null;
 
@@ -31,6 +39,12 @@ function carregarProdutos() {
           <td>${p.quantidade}</td>
           <td>R$ ${p.preco.toFixed(2)}</td>
           <td>
+            <button class="btn-mov entrada" data-id="${
+              p.id
+            }" data-tipo="entrada">Entrada</button>
+            <button class="btn-mov saida" data-id="${
+              p.id
+            }" data-tipo="saida">Saída</button>
             <button class="edit" onclick="editarProduto(${p.id}, '${p.nome}', ${
           p.quantidade
         }, ${p.preco})">Editar</button>
@@ -138,6 +152,52 @@ toggleTema.addEventListener("click", () => {
 
 toggleSidebar.addEventListener("click", () => {
   sidebar.classList.toggle("hidden");
+});
+
+// Modal movimentação
+
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("btn-mov")) {
+    movProdutoId = e.target.dataset.id;
+    movTipo = e.target.dataset.tipo;
+    document.getElementById(
+      "modal-titulo"
+    ).textContent = `Registrar ${movTipo}`;
+    inputQtd.value = "";
+    modal.classList.remove("hidden");
+  }
+});
+
+btnConfirmar.addEventListener("click", async () => {
+  const quantidade = parseInt(inputQtd.value);
+  if (!quantidade || quantidade <= 0) {
+    showToast("Informe uma quantidade válida", true);
+    return;
+  }
+
+  const response = await fetch(MOV_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      produto_id: movProdutoId,
+      tipo: movTipo,
+      quantidade,
+    }),
+  });
+
+  const data = await response.json();
+  if (response.ok) {
+    showToast(data.message);
+    carregarProdutos();
+  } else {
+    showToast(data.error || "Erro ao registrar movimentação", true);
+  }
+
+  modal.classList.add("hidden");
+});
+
+btnCancelar.addEventListener("click", () => {
+  modal.classList.add("hidden");
 });
 
 carregarProdutos();

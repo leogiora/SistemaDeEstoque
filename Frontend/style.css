@@ -13,7 +13,7 @@
 
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   background-color: var(--bg-light);
   color: var(--text-light);
   transition: background-color 0.3s, color 0.3s;
@@ -179,7 +179,8 @@ body.dark table {
   background: var(--card-dark);
 }
 
-th, td {
+th,
+td {
   padding: 0.8rem;
   text-align: left;
   border-bottom: 1px solid #ccc;
@@ -194,7 +195,9 @@ body.dark th {
   background-color: #3a3a4a;
 }
 
-button.edit, button.delete {
+button.edit,
+button.delete,
+.btn-mov {
   padding: 0.4rem 0.7rem;
   margin-right: 0.4rem;
   border: none;
@@ -210,6 +213,16 @@ button.edit {
 button.delete {
   background-color: #dc3545;
   color: #fff;
+}
+
+.btn-mov.entrada {
+  background-color: #198754;
+  color: white;
+}
+
+.btn-mov.saida {
+  background-color: #fd7e14;
+  color: white;
 }
 
 #toast {
@@ -234,13 +247,84 @@ button.delete {
 }
 
 @keyframes fadein {
-  from { opacity: 0; right: -100px; }
-  to   { opacity: 1; right: 1rem; }
+  from {
+    opacity: 0;
+    right: -100px;
+  }
+  to {
+    opacity: 1;
+    right: 1rem;
+  }
 }
 
 @keyframes fadeout {
-  from { opacity: 1; right: 1rem; }
-  to   { opacity: 0; right: -100px; }
+  from {
+    opacity: 1;
+    right: 1rem;
+  }
+  to {
+    opacity: 0;
+    right: -100px;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: var(--shadow);
+}
+
+.modal input {
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal button {
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#confirmar-mov {
+  background-color: #198754;
+  color: white;
+}
+
+#cancelar-mov {
+  background-color: #6c757d;
+  color: white;
+}
+
+body.dark .modal {
+  background-color: var(--card-dark);
+  color: var(--text-dark);
 }
 
 @media (max-width: 768px) {
@@ -293,4 +377,3 @@ body.dark .btn-toggle {
 body.dark .btn-toggle:hover {
   background-color: #565674;
 }
-

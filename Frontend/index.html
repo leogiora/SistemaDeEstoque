@@ -1,101 +1,133 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Sistema de Estoque</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-</head>
-<body>
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar hidden" id="sidebar">
-      <h2>Estoque</h2>
-      <nav>
-        <ul>
-          <li><i class="fas fa-chart-line"></i> Dashboard</li>
-          <li><i class="fas fa-boxes"></i> Produtos</li>
-          <li><i class="fas fa-arrow-down"></i> Entradas</li>
-          <li><i class="fas fa-arrow-up"></i> Saídas</li>
-          <li><i class="fas fa-cog"></i> Configurações</li>
-        </ul>
-      </nav>
-    </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sistema de Estoque</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar hidden" id="sidebar">
+        <h2>Estoque</h2>
+        <nav>
+          <ul>
+            <li><i class="fas fa-chart-line"></i> Dashboard</li>
+            <li><i class="fas fa-boxes"></i> Produtos</li>
+            <li><i class="fas fa-arrow-down"></i> Entradas</li>
+            <li><i class="fas fa-arrow-up"></i> Saídas</li>
+            <li><i class="fas fa-cog"></i> Configurações</li>
+          </ul>
+        </nav>
+      </aside>
 
-    <!-- Conteúdo principal -->
-    <main class="main">
-      <!-- Topbar -->
-      <div class="topbar">
-        <div class="topbar-left">
-          <button id="toggle-sidebar">☰</button>
-          <h1>
-            <img src="logo.png" alt="Logo" class="logo" />
-            <span>Sistema de Estoque</span>
-          </h1>
+      <!-- Conteúdo principal -->
+      <main class="main">
+        <!-- Topbar -->
+        <div class="topbar">
+          <div class="topbar-left">
+            <button id="toggle-sidebar">☰</button>
+            <h1>
+              <img src="logo.png" alt="Logo" class="logo" />
+              <span>Sistema de Estoque</span>
+            </h1>
+          </div>
+          <div class="topbar-right">
+            <button id="toggle-tema" class="btn-toggle">
+              <i class="fas fa-moon"></i>
+              <span>Alternar Tema</span>
+            </button>
+          </div>
         </div>
-        <div class="topbar-right">
-          <button id="toggle-tema" class="btn-toggle">
-            <i class="fas fa-moon"></i>
-            <span>Alternar Tema</span>
-          </button>
-        </div>
+
+        <!-- Dashboard cards -->
+        <section class="cards">
+          <div class="card">
+            <p>Produtos em Estoque</p>
+            <strong id="total-produtos">0</strong>
+          </div>
+          <div class="card">
+            <p>Estoque Baixo</p>
+            <strong id="baixo-estoque">0</strong>
+          </div>
+          <div class="card">
+            <p>Últimas Entradas</p>
+            <strong>–</strong>
+          </div>
+          <div class="card">
+            <p>Últimas Saídas</p>
+            <strong>–</strong>
+          </div>
+        </section>
+
+        <!-- Formulário para adicionar produto -->
+        <section class="form-produto">
+          <h2>Adicionar Produto</h2>
+          <form id="produto-form">
+            <input
+              type="text"
+              id="nome"
+              placeholder="Nome do produto"
+              required
+            />
+            <input
+              type="number"
+              id="quantidade"
+              placeholder="Quantidade"
+              required
+            />
+            <input
+              type="number"
+              id="preco"
+              placeholder="Preço"
+              step="0.01"
+              required
+            />
+            <button type="submit">Salvar</button>
+          </form>
+        </section>
+
+        <!-- Tabela de produtos -->
+        <section class="tabela-produtos">
+          <h2>Produtos Cadastrados</h2>
+          <input type="text" id="filtro" placeholder="Buscar produto..." />
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Preço</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-body"></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <!-- Toast de feedback -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Modal de movimentação -->
+    <div id="modal-movimentacao" class="modal-overlay hidden">
+      <div class="modal">
+        <h3 id="modal-titulo">Entrada/Saída</h3>
+        <input type="number" id="quantidade-mov" placeholder="Quantidade" />
+        <button id="confirmar-mov">Confirmar</button>
+        <button id="cancelar-mov">Cancelar</button>
       </div>
+    </div>
 
-      <!-- Dashboard cards -->
-      <section class="cards">
-        <div class="card">
-          <p>Produtos em Estoque</p>
-          <strong id="total-produtos">0</strong>
-        </div>
-        <div class="card">
-          <p>Estoque Baixo</p>
-          <strong id="baixo-estoque">0</strong>
-        </div>
-        <div class="card">
-          <p>Últimas Entradas</p>
-          <strong>–</strong>
-        </div>
-        <div class="card">
-          <p>Últimas Saídas</p>
-          <strong>–</strong>
-        </div>
-      </section>
-
-      <!-- Formulário para adicionar produto -->
-      <section class="form-produto">
-        <h2>Adicionar Produto</h2>
-        <form id="produto-form">
-          <input type="text" id="nome" placeholder="Nome do produto" required />
-          <input type="number" id="quantidade" placeholder="Quantidade" required />
-          <input type="number" id="preco" placeholder="Preço" step="0.01" required />
-          <button type="submit">Salvar</button>
-        </form>
-      </section>
-
-      <!-- Tabela de produtos -->
-      <section class="tabela-produtos">
-        <h2>Produtos Cadastrados</h2>
-        <input type="text" id="filtro" placeholder="Buscar produto..." />
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Quantidade</th>
-              <th>Preço</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-body"></tbody>
-        </table>
-      </section>
-    </main>
-  </div>
-
-  <!-- Toast de feedback -->
-  <div id="toast" class="toast"></div>
-
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
