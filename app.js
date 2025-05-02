@@ -27,6 +27,17 @@ const db = new sqlite3.Database("./estoque.db", (err) => {
       )
     `);
   }
+  // Criar tabela de movimentações
+  db.run(`
+  CREATE TABLE IF NOT EXISTS movimentacoes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    produto_id INTEGER,
+    tipo TEXT CHECK(tipo IN ('entrada', 'saida')),
+    quantidade INTEGER,
+    data TEXT,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+  )
+`);
 });
 
 // Rota de teste
