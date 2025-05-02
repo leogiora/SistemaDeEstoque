@@ -1,4 +1,3 @@
-// app.js
 import express from "express";
 import sqlite3 from "sqlite3";
 import cors from "cors";
@@ -6,18 +5,16 @@ import cors from "cors";
 const app = express();
 const PORT = 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Conexão com banco SQLite
 const db = new sqlite3.Database("./estoque.db", (err) => {
   if (err) {
     console.error("Erro ao conectar no banco:", err.message);
   } else {
-    console.log("Conectado ao banco de dados SQLite.");
+    console.log("Conectado ao banco SQLite.");
 
-    // Criar tabela se não existir
+    // Criação da tabela de produtos
     db.run(`
       CREATE TABLE IF NOT EXISTS produtos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,18 +23,19 @@ const db = new sqlite3.Database("./estoque.db", (err) => {
         preco REAL
       )
     `);
+
+    // Criação da tabela de movimentações
+    db.run(`
+      CREATE TABLE IF NOT EXISTS movimentacoes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        produto_id INTEGER,
+        tipo TEXT CHECK(tipo IN ('entrada', 'saida')),
+        quantidade INTEGER,
+        data TEXT,
+        FOREIGN KEY (produto_id) REFERENCES produtos(id)
+      )
+    `);
   }
-  // Criar tabela de movimentações
-  db.run(`
-  CREATE TABLE IF NOT EXISTS movimentacoes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    produto_id INTEGER,
-    tipo TEXT CHECK(tipo IN ('entrada', 'saida')),
-    quantidade INTEGER,
-    data TEXT,
-    FOREIGN KEY (produto_id) REFERENCES produtos(id)
-  )
-`);
 });
 
 // Rota de teste
@@ -45,39 +43,37 @@ app.get("/ping", (req, res) => {
   res.json({ message: "API funcionando! 🚀" });
 });
 
-// Rota para adicionar um produto
+// Adicionar produto
 app.post("/produtos", (req, res) => {
-  const { nome, quantidade, preco } = req.body;
+  const { nome, preco } = req.body;
 
-  if (!nome || quantidade == null || preco == null) {
+  if (!nome || preco == null) {
     return res.status(400).json({ error: "Dados incompletos" });
   }
 
   const query =
     "INSERT INTO produtos (nome, quantidade, preco) VALUES (?, ?, ?)";
-  const params = [nome, quantidade, preco];
+  const params = [nome, 0, preco];
 
   db.run(query, params, function (err) {
     if (err) {
-      console.error(err.message);
       return res.status(500).json({ error: "Erro ao inserir produto" });
     }
-    res.status(201).json({ id: this.lastID, nome, quantidade, preco });
+    res.status(201).json({ id: this.lastID, nome, quantidade: 0, preco });
   });
 });
 
-// Rota para listar todos os produtos
+// Listar todos os produtos
 app.get("/produtos", (req, res) => {
   db.all("SELECT * FROM produtos", [], (err, rows) => {
     if (err) {
-      console.error(err.message);
       return res.status(500).json({ error: "Erro ao buscar produtos" });
     }
     res.json(rows);
   });
 });
 
-// Rota para editar um produto existente
+// Editar produto
 app.put("/produtos/:id", (req, res) => {
   const { id } = req.params;
   const { nome, quantidade, preco } = req.body;
@@ -86,19 +82,14 @@ app.put("/produtos/:id", (req, res) => {
     return res.status(400).json({ error: "Dados incompletos" });
   }
 
-  const query = `
-    UPDATE produtos
-    SET nome = ?, quantidade = ?, preco = ?
-    WHERE id = ?
-  `;
+  const query =
+    "UPDATE produtos SET nome = ?, quantidade = ?, preco = ? WHERE id = ?";
   const params = [nome, quantidade, preco, id];
 
   db.run(query, params, function (err) {
     if (err) {
-      console.error(err.message);
       return res.status(500).json({ error: "Erro ao atualizar produto" });
     }
-
     if (this.changes === 0) {
       return res.status(404).json({ error: "Produto não encontrado" });
     }
@@ -107,13 +98,12 @@ app.put("/produtos/:id", (req, res) => {
   });
 });
 
-// Rota para deletar um produto
+// Deletar produto
 app.delete("/produtos/:id", (req, res) => {
   const { id } = req.params;
 
   db.run("DELETE FROM produtos WHERE id = ?", [id], function (err) {
     if (err) {
-      console.error(err.message);
       return res.status(500).json({ error: "Erro ao deletar produto" });
     }
 
@@ -123,6 +113,80 @@ app.delete("/produtos/:id", (req, res) => {
 
     res.json({ message: "Produto deletado com sucesso" });
   });
+});
+
+// Movimentação (entrada/saída)
+app.post("/movimentacoes", (req, res) => {
+  const { produto_id, tipo, quantidade } = req.body;
+
+  if (
+    produto_id == null ||
+    !["entrada", "saida"].includes(tipo) ||
+    quantidade == null ||
+    isNaN(quantidade)
+  ) {
+    return res.status(400).json({ error: "Dados inválidos ou incompletos" });
+  }
+
+  const id = parseInt(produto_id);
+  const qtd = parseInt(quantidade);
+  const dataAtual = new Date().toISOString();
+
+  // Buscar o produto atual
+  db.get("SELECT * FROM produtos WHERE id = ?", [id], (err, produto) => {
+    if (err || !produto) {
+      return res.status(404).json({ error: "Produto não encontrado" });
+    }
+
+    let novaQuantidade =
+      tipo === "entrada" ? produto.quantidade + qtd : produto.quantidade - qtd;
+
+    if (novaQuantidade < 0) {
+      return res.status(400).json({ error: "Estoque insuficiente" });
+    }
+
+    // Atualizar quantidade
+    db.run(
+      "UPDATE produtos SET quantidade = ? WHERE id = ?",
+      [novaQuantidade, id],
+      function (err) {
+        if (err) {
+          return res.status(500).json({ error: "Erro ao atualizar estoque" });
+        }
+
+        // Registrar movimentação
+        db.run(
+          "INSERT INTO movimentacoes (produto_id, tipo, quantidade, data) VALUES (?, ?, ?, ?)",
+          [id, tipo, qtd, dataAtual],
+          function (err) {
+            if (err) {
+              return res
+                .status(500)
+                .json({ error: "Erro ao registrar movimentação" });
+            }
+
+            res.json({ message: "Movimentação registrada com sucesso" });
+          }
+        );
+      }
+    );
+  });
+});
+
+// Listar movimentações (extra opcional)
+app.get("/movimentacoes/:produto_id", (req, res) => {
+  const { produto_id } = req.params;
+
+  db.all(
+    "SELECT * FROM movimentacoes WHERE produto_id = ? ORDER BY data DESC",
+    [produto_id],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: "Erro ao buscar movimentações" });
+      }
+      res.json(rows);
+    }
+  );
 });
 
 app.listen(PORT, () => {
